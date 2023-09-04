@@ -53,6 +53,7 @@ export const signUp = async (req, res) => {
     user.passWord = undefined;
     return res.status(200).json({
       accessToken,
+      expires: 10 * 60 * 1000,
       data: user,
     });
   } catch (error) {
@@ -117,6 +118,7 @@ export const signIn = async (req, res) => {
 
     return res.status(200).json({
       accessToken,
+      expires: 10 * 60 * 1000,
       data: user,
     });
   } catch (error) {
@@ -129,7 +131,7 @@ export const refresh = async (req, res) => {
     const refreshToken = req.cookies.jwt;
     if (!refreshToken) {
       return res.json({
-        token: "",
+        token: '',
       });
     }
     jwt.verify(refreshToken, process.env.SERECT_REFRESHTOKEN_KEY, (err, decode) => {
@@ -142,7 +144,8 @@ export const refresh = async (req, res) => {
           expiresIn: "10m"
         })
         return res.status(200).json({
-          token: accessToken
+          token: accessToken,
+          expires: 10 * 60 * 1000
         })
       }
     })
