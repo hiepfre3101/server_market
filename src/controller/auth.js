@@ -1,7 +1,7 @@
 import User from "../model/user";
 import { signinSchema, singupSchema } from "../schemas/auth";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import jwt, { decode } from "jsonwebtoken";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -36,19 +36,23 @@ export const signUp = async (req, res) => {
       });
     }
     
-    const token = jwt.sign({ _id: user._id }, process.env.SERECT_KEY, {
-      expiresIn: "1d",
+    const refreshToken = jwt.sign({ _id: user._id }, process.env.SERECT_ACCESSTOKEN_KEY, {
+      expiresIn: "10m",
     });
 
-    res.cookie("jwt", token, { 
-      expire: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), 
+    const accessToken = jwt.sign({ _id: user._id }, process.env.SERECT_REFRESHTOKEN_KEY, {
+      expiresIn: "1d"
+    })
+
+    res.cookie("jwt", refreshToken, { 
+      expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), 
       httpOnly: true,
       secure: true,
     });
 
     user.passWord = undefined;
     return res.status(200).json({
-      accessToken: token,
+      accessToken,
       data: user,
     });
   } catch (error) {
@@ -95,11 +99,15 @@ export const signIn = async (req, res) => {
         error: "Create a new user failed",
       });
     }
-    const token = jwt.sign({ _id: user._id }, process.env.SERECT_KEY, {
-      expiresIn: "1d",
+    const refreshToken = jwt.sign({ _id: user._id }, process.env.SERECT_ACCESSTOKEN_KEY, {
+      expiresIn: "10m",
     });
 
-    res.cookie("jwt", token, { 
+    const accessToken = jwt.sign({ _id: user._id }, process.env.SERECT_REFRESHTOKEN_KEY, {
+      expiresIn: "1d"
+    })
+
+    res.cookie("jwt", refreshToken, { 
       expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), 
       httpOnly: true,
       secure: true,
@@ -108,7 +116,7 @@ export const signIn = async (req, res) => {
     user.passWord = undefined;
 
     return res.status(200).json({
-      accessToken: token,
+      accessToken,
       data: user,
     });
   } catch (error) {
@@ -116,17 +124,28 @@ export const signIn = async (req, res) => {
   }
 };
 
-export const getToken = async (req, res) => {
+export const refresh = async (req, res) => {
   try {
-    const token = req.cookies.jwt;
-    if (!token) {
+    const refreshToken = req.cookies.jwt;
+    if (!refreshToken) {
       return res.json({
         token: "",
       });
     }
-    return res.json({
-      token,
-    });
+    jwt.verify(refreshToken, process.env.SERECT_REFRESHTOKEN_KEY, (err, decode) => {
+      if(err) {
+        return res.status(406).json({
+          token: '',
+        })
+      } else {
+        const accessToken = jwt.sign({ id: decode.id }, process.env.SERECT_ACCESSTOKEN_KEY, {
+          expiresIn: "10m"
+        })
+        return res.status(200).json({
+          token: accessToken
+        })
+      }
+    })
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }
