@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
-const categorySchema = new mongoose.Schema(
+const brandSchema = new mongoose.Schema(
    {
-      cateName: {
+      brandName: {
          type: String,
          required: true,
       },
@@ -12,12 +12,6 @@ const categorySchema = new mongoose.Schema(
             ref: 'Product',
          },
       ],
-      subCategories: [
-         {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Category',
-         },
-      ],
       image: {
          type: String,
          required: true,
@@ -25,5 +19,5 @@ const categorySchema = new mongoose.Schema(
    },
    { timestamps: true, versionKey: false },
 );
-
-export default mongoose.model('Category', categorySchema);
+const Brand = mongoose.model('Brand', brandSchema);
+export default Brand;
