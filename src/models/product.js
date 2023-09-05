@@ -14,10 +14,16 @@ const productSchema = new mongoose.Schema(
       categoryId: {
          type: mongoose.Types.ObjectId,
          require: true,
+         ref: 'Category',
       },
       subCateId: {
          type: mongoose.Types.ObjectId,
          require: true,
+      },
+      brandId: {
+         type: mongoose.Types.ObjectId,
+         require: true,
+         ref: 'Brand',
       },
       commentId: [
          {

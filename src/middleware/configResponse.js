@@ -5,3 +5,9 @@ export const responseSender = (req, res, next) => {
    data.message = req.responseMessage || 'Success';
    return res.status(data.status).json(data);
 };
+
+export const typeRequestMw = {
+   RESPONSE_OBJ: 'responseObj',
+   RESPONSE_STATUS: 'responseStatus',
+   RESPONSE_MESSAGE: 'responseMessage',
+};

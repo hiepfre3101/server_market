@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import categoryRouter from './routes/categories';
 import productRouter from './routes/product';
+import brandRoute from './routes/brand';
 
 dotenv.config();
 const app = express();
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/api', categoryRouter);
 app.use('/api', productRouter);
+app.use('/api', brandRoute);
 mongoose
    .connect(MONGO_URL)
    .then(() => console.log('connected to db'))
