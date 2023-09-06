@@ -3,11 +3,16 @@ import SubCategory from '../models/subCategories';
 import Product from '../models/product';
 import { categorySchema } from '../schemas/categories';
 import { typeRequestMw } from '../middleware/configResponse';
-import subCategories from '../models/subCategories';
 
 const { RESPONSE_MESSAGE, RESPONSE_STATUS, RESPONSE_OBJ } = typeRequestMw;
 export const createCategory = async (req, res, next) => {
    try {
+      const defaultCategory = await Category.findOne({ type: 'default' });
+      if (defaultCategory) {
+         req[RESPONSE_STATUS] = 500;
+         req[RESPONSE_MESSAGE] = `Only one default Category`;
+         return next();
+      }
       const { error } = categorySchema.validate(req.body, { abortEarly: false });
       if (error) {
          req[RESPONSE_STATUS] = 500;
@@ -31,6 +36,12 @@ export const createCategory = async (req, res, next) => {
 };
 export const updateCategory = async (req, res, next) => {
    try {
+      const defaultCategory = await Category.findOne({ type: 'default' });
+      if (defaultCategory) {
+         req[RESPONSE_STATUS] = 500;
+         req[RESPONSE_MESSAGE] = `Only one default Category`;
+         return next();
+      }
       const { error } = categorySchema.validate(req.body, { abortEarly: false });
       if (error) {
          req[RESPONSE_STATUS] = 500;
@@ -57,18 +68,17 @@ export const updateCategory = async (req, res, next) => {
 export const removeCategories = async (req, res, next) => {
    try {
       const category = await Category.findOne({ _id: req.params.id });
-      const defaultCategoryId = '64ecbaba1afc7bd4ffeb8d9c';
       // không cho phép xóa danh mục mặc định
-      if (req.params.id == defaultCategoryId) {
-         // return res.status(403).json({
-         //    message: 'Can not delete Default category ',
-         // });
+      const defaultCategory = await Category.findOne({ type: 'default' });
+      const defaultCategoryId = defaultCategory._id;
+      if (category.type == 'default') {
          req[RESPONSE_MESSAGE] = `Can not delete Default category`;
          return next();
       }
       await Product.updateMany({ categoryId: category._id }, { $set: { categoryId: defaultCategoryId } });
-      // update lại id cate của các sản phẩm trong danh mục muốn xóa thành id cate defaultCategory
-      await subCategories.updateMany({ categoryId: category._id }, { $set: { categoryId: defaultCategoryId } });
+      // do xoa category cha nen cac category con cung phai xoa
+      const subCatePromises = category.subCategories.map((item) => SubCategory.findByIdAndDelete({ _id: item._id }));
+      await Promise.all(subCatePromises);
       // thêm id của sản phẩm vào danh mục mạc định
       const defaultCate = await Category.findByIdAndUpdate(
          defaultCategoryId,
@@ -95,7 +105,7 @@ export const removeCategories = async (req, res, next) => {
 };
 export const getAllCategory = async (req, res, next) => {
    try {
-      const category = await Category.find();
+      const category = await Category.find().populate([{ path: 'subCategories', select: ['subCateName', '_id'] }]);
       if (category.length === 0) {
          req[RESPONSE_MESSAGE] = `Not found any categories`;
          req[RESPONSE_OBJ] = category;
