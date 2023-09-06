@@ -13,14 +13,14 @@ export const signUp = async (req, res) => {
     if (error) {
       const errors = error.details.map(({ message }) => message);
       return res.status(401).json({
-        error: errors,
+        message: errors,
       });
     }
 
     const userExist = await User.findOne({ email: req.body.email });
     if (userExist) {
       return res.status(202).json({
-        error: "Email already registered",
+        message: "Email already registered",
       });
     }
     
@@ -32,7 +32,7 @@ export const signUp = async (req, res) => {
     });
     if (!user) {
       return res.status(401).json({
-        error: "Create a new user failed",
+        message: "Create a new user failed",
       });
     }
     
@@ -57,7 +57,7 @@ export const signUp = async (req, res) => {
       data: user,
     });
   } catch (error) {
-    return res.status(401).json({ error: error.message });
+    return res.status(401).json({ message: error.message });
   }
 };
 
@@ -68,20 +68,20 @@ export const signIn = async (req, res) => {
     if (error) {
       const errors = error.details.map(({ message }) => message);
       return res.status(401).json({
-        error: errors,
+        message: errors,
       });
     }
 
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
       return res.status(202).json({
-        error: "Email not exist",
+        message: "Email not exist",
       });
     }
 
     if(!user.state) {
       return res.status(403).json({
-        error: "This account is disabled"
+        message: "This account is disabled"
       })
     }
 
@@ -91,13 +91,13 @@ export const signIn = async (req, res) => {
     );
     if (!validPass) {
       return res.status(202).json({
-        error: "Passwords do not match",
+        message: "Passwords do not match",
       });
     }
 
     if (!user) {
       return res.status(401).json({
-        error: "Create a new user failed",
+        message: "Create a new user failed",
       });
     }
     const refreshToken = jwt.sign({ _id: user._id }, process.env.SERECT_ACCESSTOKEN_KEY, {
@@ -122,7 +122,7 @@ export const signIn = async (req, res) => {
       data: user,
     });
   } catch (error) {
-    return res.status(401).json({ error: error.message });
+    return res.status(401).json({ message: error.message });
   }
 };
 
