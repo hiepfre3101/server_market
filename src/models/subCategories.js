@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
-const categorySchema = new mongoose.Schema(
+const subCategorySchema = new mongoose.Schema(
    {
-      cateName: {
+      subCateName: {
          type: String,
          required: true,
       },
@@ -12,18 +12,13 @@ const categorySchema = new mongoose.Schema(
             ref: 'Product',
          },
       ],
-      subCategories: [
-         {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'SubCategory',
-         },
-      ],
-      image: {
-         type: String,
+      categoryId: {
+         type: mongoose.Schema.Types.ObjectId,
+         ref: 'Category',
          required: true,
       },
    },
    { timestamps: true, versionKey: false },
 );
 
-export default mongoose.model('Category', categorySchema);
+export default mongoose.model('SubCategory', subCategorySchema);

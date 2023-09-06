@@ -1,16 +1,16 @@
 import express from 'express';
 import {
-   createCategory,
    getAllCategory,
+   createCategory,
    getOneCategory,
    removeCategories,
    updateCategory,
 } from '../controller/categories';
+import { responseSender } from '../middleware/configResponse';
 const router = express.Router();
-
-router.post('/categories', createCategory);
-router.patch('/categories/:id', updateCategory);
-router.delete('/categories/:id', removeCategories);
-router.get('/categories', getAllCategory);
-router.get('/categories/:id', getOneCategory);
+router.post('/categories', createCategory, responseSender);
+router.patch('/categories/:id', updateCategory, responseSender);
+router.delete('/categories/:id', removeCategories, responseSender);
+router.get('/categories/:id', getOneCategory, responseSender);
+router.get('/categories', getAllCategory, responseSender);
 export default router;

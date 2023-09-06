@@ -7,10 +7,11 @@ import authRouter from './routes/auth';
 import cookieParser from 'cookie-parser';
 import productRouter from './routes/product';
 import brandRoute from './routes/brand';
-
+import subCategories from './routes/subCategories';
+const app = express();
 dotenv.config();
 app.use(cors({ origin: true, credentials: true }));
-app.use(cookieParser())
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -22,7 +23,7 @@ app.use('/api', authRouter);
 app.use('/api', categoryRouter);
 app.use('/api', productRouter);
 app.use('/api', brandRoute);
-
+app.use('/api', subCategories);
 mongoose
    .connect(MONGO_URL)
    .then(() => console.log('connected to db'))
