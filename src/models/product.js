@@ -31,6 +31,13 @@ const productSchema = new mongoose.Schema(
             require: true,
          },
       ],
+      menuId: [
+         {
+            type: mongoose.Types.ObjectId,
+            require: true,
+            ref: 'Menu'
+         },
+      ],
       desc: {
          type: String,
          required: true,

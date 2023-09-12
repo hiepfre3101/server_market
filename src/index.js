@@ -8,6 +8,8 @@ import cookieParser from 'cookie-parser';
 import productRouter from './routes/product';
 import brandRoute from './routes/brand';
 import subCategories from './routes/subCategories';
+import Menurouter from './routes/menu';
+
 const app = express();
 dotenv.config();
 app.use(cors({ origin: true, credentials: true }));
@@ -24,6 +26,7 @@ app.use('/api', categoryRouter);
 app.use('/api', productRouter);
 app.use('/api', brandRoute);
 app.use('/api', subCategories);
+app.use('/api', Menurouter);
 mongoose
    .connect(MONGO_URL)
    .then(() => console.log('connected to db'))
