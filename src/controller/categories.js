@@ -37,7 +37,7 @@ export const createCategory = async (req, res, next) => {
 export const updateCategory = async (req, res, next) => {
    try {
       const defaultCategory = await Category.findOne({ type: 'default' });
-      if (defaultCategory) {
+      if (defaultCategory.type === req.body.type) {
          req[RESPONSE_STATUS] = 500;
          req[RESPONSE_MESSAGE] = `Only one default Category`;
          return next();
