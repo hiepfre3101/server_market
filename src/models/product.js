@@ -31,13 +31,6 @@ const productSchema = new mongoose.Schema(
             require: true,
          },
       ],
-      menuId: [
-         {
-            type: mongoose.Types.ObjectId,
-            require: true,
-            ref: 'Menu'
-         },
-      ],
       desc: {
          type: String,
          required: true,
@@ -45,7 +38,7 @@ const productSchema = new mongoose.Schema(
       weight: {
          type: Number,
       },
-      volumn: {
+      volume: {
          type: Number,
       },
       unit: {

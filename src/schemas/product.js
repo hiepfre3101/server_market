@@ -6,7 +6,6 @@ export const productSchema = Joi.object({
    categoryId: Joi.string().required(),
    brandId: Joi.string().required(),
    subCateId: Joi.string().required(),
-   
    desc: Joi.string().required(),
    unit: Joi.string().required(),
    amount: Joi.number().required(),

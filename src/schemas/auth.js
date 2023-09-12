@@ -4,21 +4,16 @@ export const singupSchema = joi.object({
    userName: joi.string().required(),
    email: joi.string().email().required(),
    password: joi.string().required().min(6),
-   confirmPassword: joi.string().valid(joi.ref('passWord')).required(),
+   confirmPassword: joi.string().valid(joi.ref('password')).required(),
    phoneNumber: joi.string().min(10),
    address: joi.string(),
    avatar: joi
-      .array()
-      .items(
-         joi
-            .string()
-            .default(
-               'https://res.cloudinary.com/dpwto5xyv/image/upload/v1692587346/learnECMAS/t%E1%BA%A3i_xu%E1%BB%91ng_zdwt9p.png',
-            ),
+      .string()
+      .default(
+         'https://lh5.googleusercontent.com/x14nnYSvR1c8KkO6Kj1giR4iZcQL0UelyqcGBRFt8fHQg8sRUouMkFc3b_F-kmDLDW-qpDo8KkBpuXGnfUNjy6NZVqwAcBYnngbupNd2scJqGyNpjYTGQZdfY3ktqFJZNsKfXR-YrDmqrcQwOrM4k2M',
       ),
-   role: joi.string().valid('admin', 'contributor', 'member').default('member'),
+   role: joi.string().valid('admin', 'member').default('member'),
    state: joi.boolean().default(true),
-   notifications: joi.array().items(joi.string()),
 });
 
 export const signinSchema = joi.object({
@@ -33,15 +28,11 @@ export const userSchema = joi.object({
    phoneNumber: joi.string().min(10),
    address: joi.string(),
    avatar: joi
-      .array()
-      .items(
-         joi
-            .string()
-            .default(
-               'https://res.cloudinary.com/dpwto5xyv/image/upload/v1692587346/learnECMAS/t%E1%BA%A3i_xu%E1%BB%91ng_zdwt9p.png',
-            ),
-      ),
-   role: joi.string().valid('admin', 'contributor', 'member').default('member'),
+   .string()
+   .default(
+      'https://lh5.googleusercontent.com/x14nnYSvR1c8KkO6Kj1giR4iZcQL0UelyqcGBRFt8fHQg8sRUouMkFc3b_F-kmDLDW-qpDo8KkBpuXGnfUNjy6NZVqwAcBYnngbupNd2scJqGyNpjYTGQZdfY3ktqFJZNsKfXR-YrDmqrcQwOrM4k2M',
+   ),
+   role: joi.string().valid('admin', 'member').default('member'),
    state: joi.boolean().default(true),
-   notifications: joi.array().items(joi.string()),
+  
 });

@@ -17,6 +17,12 @@ const subCategorySchema = new mongoose.Schema(
          ref: 'Category',
          required: true,
       },
+      brands: [
+         {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Brand',
+         },
+      ],
    },
    { timestamps: true, versionKey: false },
 );

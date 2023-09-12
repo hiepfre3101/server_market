@@ -22,6 +22,11 @@ const categorySchema = new mongoose.Schema(
          type: String,
          required: true,
       },
+      type: {
+         type: String,
+         enum: ['normal', 'default'],
+         default: 'normal',
+      },
    },
    { timestamps: true, versionKey: false },
 );
