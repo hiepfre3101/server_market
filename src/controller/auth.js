@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-export const signUp = async (req, res) => {
+export const signUp = async (req, res, next) => {
    try {
       const { error } = singupSchema.validate(req.body, { abortEarly: false });
 
@@ -24,11 +24,11 @@ export const signUp = async (req, res) => {
          });
       }
 
-      const hashPassword = await bcrypt.hash(req.body.passWord, 10);
+      const hashPassword = await bcrypt.hash(req.body.password, 10);
 
       const user = await User.create({
          ...req.body,
-         passWord: hashPassword,
+         password: hashPassword,
       });
       if (!user) {
          return res.status(401).json({
@@ -36,21 +36,26 @@ export const signUp = async (req, res) => {
          });
       }
 
-      const refreshToken = jwt.sign({ _id: user._id }, process.env.SERECT_ACCESSTOKEN_KEY, {
-         expiresIn: '10m',
-      });
-
-      const accessToken = jwt.sign({ _id: user._id }, process.env.SERECT_REFRESHTOKEN_KEY, {
+      const refreshToken = jwt.sign({ _id: user._id }, process.env.SERECT_REFRESHTOKEN_KEY, {
          expiresIn: '1d',
       });
 
-      res.cookie('jwt', refreshToken, {
-         expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+      const accessToken = jwt.sign({ _id: user._id }, process.env.SERECT_ACCESSTOKEN_KEY, {
+         expiresIn: '1m',
+      });
+
+      res.cookie('accessToken', accessToken, {
+         expires: new Date(Date.now() + 60 * 1000),
+         httpOnly: true,
+         secure: true,
+      });
+      res.cookie('refreshToken', refreshToken, {
+         expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
          httpOnly: true,
          secure: true,
       });
 
-      user.passWord = undefined;
+      user.password = undefined;
       return res.status(200).json({
          accessToken,
          expires: 10 * 60 * 1000,
@@ -85,7 +90,7 @@ export const signIn = async (req, res) => {
          });
       }
 
-      const validPass = await bcrypt.compare(req.body.passWord, user.passWord);
+      const validPass = await bcrypt.compare(req.body.password, user.password);
       if (!validPass) {
          return res.status(202).json({
             message: 'Passwords do not match',
@@ -97,25 +102,28 @@ export const signIn = async (req, res) => {
             message: 'Create a new user failed',
          });
       }
-      const refreshToken = jwt.sign({ _id: user._id }, process.env.SERECT_ACCESSTOKEN_KEY, {
-         expiresIn: '10m',
-      });
-
-      const accessToken = jwt.sign({ _id: user._id }, process.env.SERECT_REFRESHTOKEN_KEY, {
+      const refreshToken = jwt.sign({ _id: user._id }, process.env.SERECT_REFRESHTOKEN_KEY, {
          expiresIn: '1d',
       });
 
-      res.cookie('jwt', refreshToken, {
-         expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+      const accessToken = jwt.sign({ _id: user._id }, process.env.SERECT_ACCESSTOKEN_KEY, {
+         expiresIn: '1m',
+      });
+      res.cookie('accessToken', accessToken, {
+         expires: new Date(Date.now() + 60 * 1000),
+         httpOnly: true,
+         secure: true,
+      });
+      res.cookie('refreshToken', refreshToken, {
+         expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
          httpOnly: true,
          secure: true,
       });
 
-      user.passWord = undefined;
+      user.password = undefined;
 
       return res.status(200).json({
          accessToken,
-         expires: 10 * 60 * 1000,
          data: user,
       });
    } catch (error) {
@@ -125,7 +133,7 @@ export const signIn = async (req, res) => {
 
 export const refresh = async (req, res) => {
    try {
-      const refreshToken = req.cookies.jwt;
+      const refreshToken = req.cookies.refreshToken;
       if (!refreshToken) {
          return res.json({
             token: '',
@@ -134,15 +142,16 @@ export const refresh = async (req, res) => {
       jwt.verify(refreshToken, process.env.SERECT_REFRESHTOKEN_KEY, (err, decode) => {
          if (err) {
             return res.status(406).json({
+               err,
                token: '',
             });
          } else {
             const accessToken = jwt.sign({ id: decode.id }, process.env.SERECT_ACCESSTOKEN_KEY, {
-               expiresIn: '10m',
+               expiresIn: '1m',
             });
             return res.status(200).json({
                token: accessToken,
-               expires: 10 * 60 * 1000,
+               expires: 60 * 1000,
             });
          }
       });
@@ -153,14 +162,15 @@ export const refresh = async (req, res) => {
 
 export const clearToken = async (req, res) => {
    try {
-      const token = req.cookies.jwt;
+      const token = req.cookies.refreshToken;
       if (!token) {
          return res.json({
             message: 'no token available',
          });
       }
 
-      res.clearCookie('jwt');
+      res.clearCookie('refreshToken');
+      res.clearCookie('accessToken');
 
       return res.json({
          message: 'token have been removed',

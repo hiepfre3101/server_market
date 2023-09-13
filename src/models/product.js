@@ -38,7 +38,7 @@ const productSchema = new mongoose.Schema(
       weight: {
          type: Number,
       },
-      volumn: {
+      volume: {
          type: Number,
       },
       unit: {

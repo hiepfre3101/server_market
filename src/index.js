@@ -8,16 +8,16 @@ import cookieParser from 'cookie-parser';
 import productRouter from './routes/product';
 import brandRoute from './routes/brand';
 import subCategories from './routes/subCategories';
-import voucher from './routes/voucher';
 const app = express();
 dotenv.config();
-app.use(cors({ origin: true, credentials: true }));
-app.use(cookieParser());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 const PORT = process.env.PORT;
 const MONGO_URL = process.env.MONGODB_LOCAL;
+app.use(express.json());
+app.use(cors({ origin: true, credentials: true }));
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
+
 
 app.use('/api', categoryRouter);
 app.use('/api', authRouter);
@@ -25,7 +25,6 @@ app.use('/api', categoryRouter);
 app.use('/api', productRouter);
 app.use('/api', brandRoute);
 app.use('/api', subCategories);
-app.use('/api', voucher);
 mongoose
    .connect(MONGO_URL)
    .then(() => console.log('connected to db'))
