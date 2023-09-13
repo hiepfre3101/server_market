@@ -8,9 +8,9 @@ import cookieParser from 'cookie-parser';
 import productRouter from './routes/product';
 import brandRoute from './routes/brand';
 import subCategories from './routes/subCategories';
+import voucher from './routes/voucher';
 import uploadRouter from './routes/upload';
 import MenuRouter from './routes/menu';
-
 const app = express();
 dotenv.config();
 
@@ -28,6 +28,7 @@ app.use('/api', categoryRouter);
 app.use('/api', productRouter);
 app.use('/api', brandRoute);
 app.use('/api', subCategories);
+app.use('/api', voucher);
 app.use('/api', uploadRouter);
 app.use('/api', MenuRouter);
 mongoose
