@@ -64,6 +64,6 @@ const productSchema = new mongoose.Schema(
 
 productSchema.plugin(paginate);
 productSchema.index({ productName: 'text' });
-const Product = mongoose.model('product', productSchema);
+const Product = mongoose.model('Product', productSchema);
 
 export default Product;
