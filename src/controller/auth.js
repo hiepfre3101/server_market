@@ -57,6 +57,7 @@ export const signUp = async (req, res, next) => {
 
       user.password = undefined;
       return res.status(200).json({
+        
          accessToken,
          expires: 10 * 60 * 1000,
          data: user,
@@ -123,6 +124,7 @@ export const signIn = async (req, res) => {
       user.password = undefined;
 
       return res.status(200).json({
+        
          accessToken,
          data: user,
       });

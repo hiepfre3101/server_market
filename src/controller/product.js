@@ -23,6 +23,7 @@ export const createProduct = async (req, res, next) => {
       await Brand.findByIdAndUpdate({ _id: req.body.categoryId }, { $addToSet: { products: product._id } });
       req[RESPONSE_OBJ] = product;
       return next();
+      
    } catch (error) {
       req[RESPONSE_STATUS] = 500;
       req[RESPONSE_MESSAGE] = `Error: ${error.message}`;
