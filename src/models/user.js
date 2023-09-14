@@ -32,6 +32,18 @@ const userSchema = new mongoose.Schema(
          enum: ['admin', 'member'],
          default: 'member',
       },
+      cartId: {
+         type: mongoose.Types.ObjectId,
+         ref:"Cart",
+         default: null
+      },
+      orders:[
+         {
+            type: mongoose.Types.ObjectId,
+            ref:"Order",
+            default: null
+         }
+      ] ,
       notifications: [String],
       vouchers: [String],
       state: {

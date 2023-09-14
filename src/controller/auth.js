@@ -107,7 +107,7 @@ export const signIn = async (req, res) => {
       });
 
       const accessToken = jwt.sign({ _id: user._id }, process.env.SERECT_ACCESSTOKEN_KEY, {
-         expiresIn: '1m',
+         expiresIn: '1d',
       });
       res.cookie('accessToken', accessToken, {
          expires: new Date(Date.now() + 60 * 1000),
