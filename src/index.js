@@ -13,6 +13,7 @@ import uploadRouter from './routes/upload';
 import MenuRouter from './routes/menu';
 import cartRouter from './routes/cart';
 import orderRouter from './routes/orders';
+import notificationRouter from './routes/notification'
 
 const app = express();
 dotenv.config();
@@ -36,6 +37,7 @@ app.use('/api', uploadRouter);
 app.use('/api', MenuRouter);
 app.use('/api', cartRouter);
 app.use('/api', orderRouter);
+app.use('/api', notificationRouter)
 mongoose
    .connect(MONGO_URL)
    .then(() => console.log('connected to db'))
