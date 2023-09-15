@@ -57,7 +57,7 @@ export const signUp = async (req, res, next) => {
       });
 
       user.password = undefined;
-      
+ 
       req[RESPONSE_OBJ] = {
          accessToken,
          expires: 10 * 60 * 1000,
