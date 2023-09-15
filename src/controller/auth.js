@@ -8,6 +8,24 @@ import { typeRequestMw } from '../middleware/configResponse';
 dotenv.config();
 const { RESPONSE_MESSAGE, RESPONSE_STATUS, RESPONSE_OBJ } = typeRequestMw;
 
+export const validateUser = async (detail) => {
+   const user = await User.findOne({ email: detail.email });
+
+   if (user) return user;
+
+   // Tạo mật khẩu ngẫu nhiên cho người dùng
+   const randomPassword = Math.random().toString(36).slice(-8);
+   const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+   const newUser = await User.create({
+      email: detail.email,
+      userName: detail.userName,
+      password: hashedPassword,
+   });
+
+   return newUser;
+};
+
 export const signUp = async (req, res, next) => {
    try {
       const { error } = singupSchema.validate(req.body, { abortEarly: false });
@@ -57,7 +75,7 @@ export const signUp = async (req, res, next) => {
       });
 
       user.password = undefined;
- 
+
       req[RESPONSE_OBJ] = {
          accessToken,
          expires: 10 * 60 * 1000,
@@ -88,8 +106,7 @@ export const signIn = async (req, res, next) => {
          return next();
       }
 
-      if (!user.state) 
-      {
+      if (!user.state) {
          req[RESPONSE_STATUS] = 403;
          req[RESPONSE_MESSAGE] = `Form error: This account is disabled`;
          return next();
@@ -130,7 +147,7 @@ export const signIn = async (req, res, next) => {
       req[RESPONSE_OBJ] = {
          accessToken,
          data: user,
-      }
+      };
       return next();
    } catch (error) {
       req[RESPONSE_STATUS] = 500;
@@ -138,6 +155,21 @@ export const signIn = async (req, res, next) => {
       return next();
    }
 };
+
+export const redirect = (req, res) => {
+   res.cookie('accessToken', req.user?.accessToken, {
+      expires: new Date(Date.now() + 60 * 1000),
+      httpOnly: true,
+      secure: true,
+   });
+   res.cookie('refreshToken', req.user?.refreshToken, {
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      httpOnly: true,
+      secure: true,
+   });
+   // Successful authentication, redirect success.
+   res.redirect('http://localhost:5173/');
+}
 
 export const refresh = async (req, res) => {
    try {
