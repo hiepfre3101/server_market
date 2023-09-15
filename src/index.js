@@ -10,7 +10,7 @@ import brandRoute from './routes/brand';
 import subCategories from './routes/subCategories';
 import voucher from './routes/voucher';
 import uploadRouter from './routes/upload';
-import MenuRouter from './routes/menu';
+import menuRouter from './routes/menu';
 import cartRouter from './routes/cart';
 import orderRouter from './routes/orders';
 
@@ -33,7 +33,7 @@ app.use('/api', brandRoute);
 app.use('/api', subCategories);
 app.use('/api', voucher);
 app.use('/api', uploadRouter);
-app.use('/api', MenuRouter);
+app.use('/api', menuRouter);
 app.use('/api', cartRouter);
 app.use('/api', orderRouter);
 mongoose

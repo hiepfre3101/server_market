@@ -41,11 +41,11 @@ export const signUp = async (req, res, next) => {
       });
 
       const accessToken = jwt.sign({ _id: user._id }, process.env.SERECT_ACCESSTOKEN_KEY, {
-         expiresIn: '1m',
+         expiresIn: '5m',
       });
 
       res.cookie('accessToken', accessToken, {
-         expires: new Date(Date.now() + 60 * 1000),
+         expires: new Date(Date.now() +5* 60 * 1000),
          httpOnly: true,
          secure: true,
       });
@@ -107,10 +107,10 @@ export const signIn = async (req, res) => {
       });
 
       const accessToken = jwt.sign({ _id: user._id }, process.env.SERECT_ACCESSTOKEN_KEY, {
-         expiresIn: '1d',
+         expiresIn: '5m',
       });
       res.cookie('accessToken', accessToken, {
-         expires: new Date(Date.now() + 60 * 1000),
+         expires: new Date(Date.now() + 5*60 * 1000),
          httpOnly: true,
          secure: true,
       });
