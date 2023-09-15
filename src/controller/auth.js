@@ -3,25 +3,44 @@ import { signinSchema, singupSchema } from '../schemas/auth';
 import bcrypt from 'bcrypt';
 import jwt, { decode } from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { typeRequestMw } from '../middleware/configResponse';
 
 dotenv.config();
+const { RESPONSE_MESSAGE, RESPONSE_STATUS, RESPONSE_OBJ } = typeRequestMw;
+
+export const validateUser = async (detail) => {
+   const user = await User.findOne({ email: detail.email });
+
+   if (user) return user;
+
+   // Tạo mật khẩu ngẫu nhiên cho người dùng
+   const randomPassword = Math.random().toString(36).slice(-8);
+   const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+   const newUser = await User.create({
+      email: detail.email,
+      userName: detail.userName,
+      password: hashedPassword,
+   });
+
+   return newUser;
+};
 
 export const signUp = async (req, res, next) => {
    try {
       const { error } = singupSchema.validate(req.body, { abortEarly: false });
 
       if (error) {
-         const errors = error.details.map(({ message }) => message);
-         return res.status(401).json({
-            message: errors,
-         });
+         req[RESPONSE_STATUS] = 500;
+         req[RESPONSE_MESSAGE] = `Form error: ${error.details[0].message}`;
+         return next();
       }
 
       const userExist = await User.findOne({ email: req.body.email });
       if (userExist) {
-         return res.status(202).json({
-            message: 'Email already registered',
-         });
+         req[RESPONSE_STATUS] = 400;
+         req[RESPONSE_MESSAGE] = `Form error: Email already registered`;
+         return next();
       }
 
       const hashPassword = await bcrypt.hash(req.body.password, 10);
@@ -31,9 +50,9 @@ export const signUp = async (req, res, next) => {
          password: hashPassword,
       });
       if (!user) {
-         return res.status(401).json({
-            message: 'Create a new user failed',
-         });
+         req[RESPONSE_STATUS] = 401;
+         req[RESPONSE_MESSAGE] = `Form error: Create a new user failed`;
+         return next();
       }
 
       const refreshToken = jwt.sign({ _id: user._id }, process.env.SERECT_REFRESHTOKEN_KEY, {
@@ -56,51 +75,54 @@ export const signUp = async (req, res, next) => {
       });
 
       user.password = undefined;
-      return res.status(200).json({
+
+      req[RESPONSE_OBJ] = {
          accessToken,
          expires: 10 * 60 * 1000,
          data: user,
-      });
+      };
+      return next();
    } catch (error) {
-      return res.status(401).json({ message: error.message });
+      req[RESPONSE_STATUS] = 500;
+      req[RESPONSE_MESSAGE] = `Form error: ${error.message}`;
+      return next();
    }
 };
 
-export const signIn = async (req, res) => {
+export const signIn = async (req, res, next) => {
    try {
       const { error } = signinSchema.validate(req.body, { abortEarly: false });
 
       if (error) {
-         const errors = error.details.map(({ message }) => message);
-         return res.status(401).json({
-            message: errors,
-         });
+         req[RESPONSE_STATUS] = 500;
+         req[RESPONSE_MESSAGE] = `Form error: ${error.details[0].message}`;
+         return next();
       }
 
       const user = await User.findOne({ email: req.body.email });
       if (!user) {
-         return res.status(202).json({
-            message: 'Email not exist',
-         });
+         req[RESPONSE_STATUS] = 404;
+         req[RESPONSE_MESSAGE] = `Form error: Email not exist`;
+         return next();
       }
 
       if (!user.state) {
-         return res.status(403).json({
-            message: 'This account is disabled',
-         });
+         req[RESPONSE_STATUS] = 403;
+         req[RESPONSE_MESSAGE] = `Form error: This account is disabled`;
+         return next();
       }
 
       const validPass = await bcrypt.compare(req.body.password, user.password);
       if (!validPass) {
-         return res.status(202).json({
-            message: 'Passwords do not match',
-         });
+         req[RESPONSE_STATUS] = 400;
+         req[RESPONSE_MESSAGE] = `Form error: Passwords do not match`;
+         return next();
       }
 
       if (!user) {
-         return res.status(401).json({
-            message: 'Create a new user failed',
-         });
+         req[RESPONSE_STATUS] = 401;
+         req[RESPONSE_MESSAGE] = `Form error: Create a new user failed`;
+         return next();
       }
       const refreshToken = jwt.sign({ _id: user._id }, process.env.SERECT_REFRESHTOKEN_KEY, {
          expiresIn: '1d',
@@ -122,14 +144,32 @@ export const signIn = async (req, res) => {
 
       user.password = undefined;
 
-      return res.status(200).json({
+      req[RESPONSE_OBJ] = {
          accessToken,
          data: user,
-      });
+      };
+      return next();
    } catch (error) {
-      return res.status(401).json({ message: error.message });
+      req[RESPONSE_STATUS] = 500;
+      req[RESPONSE_MESSAGE] = `Form error: ${error.message}`;
+      return next();
    }
 };
+
+export const redirect = (req, res) => {
+   res.cookie('accessToken', req.user?.accessToken, {
+      expires: new Date(Date.now() + 60 * 1000),
+      httpOnly: true,
+      secure: true,
+   });
+   res.cookie('refreshToken', req.user?.refreshToken, {
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      httpOnly: true,
+      secure: true,
+   });
+   // Successful authentication, redirect success.
+   res.redirect('http://localhost:5173/');
+}
 
 export const refresh = async (req, res) => {
    try {
