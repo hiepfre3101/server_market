@@ -20,6 +20,7 @@ export const validateUser = async (detail) => {
    const newUser = await User.create({
       email: detail.email,
       userName: detail.userName,
+      avatar: detail.picture,
       password: hashedPassword,
    });
 

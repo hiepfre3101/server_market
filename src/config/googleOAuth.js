@@ -17,9 +17,11 @@ export const connectToGoogle = () => {
          },
          async function (accessToken, refreshToken, profile, done) {
             try {
+               console.log(profile);
                const user = await validateUser({
                   email: profile.emails[0].value,
                   userName: profile.displayName,
+                  picture: profile.photos[0].value,
                });
 
                delete user.password;
