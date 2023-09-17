@@ -187,13 +187,13 @@ export const refresh = async (req, res, next) => {
             req[RESPONSE_MESSAGE] = `Form error: ${err}`;
             return next();
          } else {
-            const user = await User.findById(decode.id);
+            const user = await User.findById(decode._id);
             if (!user) {
                req[RESPONSE_STATUS] = 400;
-               req[RESPONSE_MESSAGE] = `Form error: Unthorized`;
+               req[RESPONSE_MESSAGE] = `Form error: not found account`;
                return next();
             }
-            const accessToken = jwt.sign({ id: user.id }, process.env.SERECT_ACCESSTOKEN_KEY, {
+            const accessToken = jwt.sign({ _id: user._id }, process.env.SERECT_ACCESSTOKEN_KEY, {
                expiresIn: '1m',
             });
             req[RESPONSE_OBJ] = {
