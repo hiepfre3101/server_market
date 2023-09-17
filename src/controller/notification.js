@@ -1,5 +1,5 @@
-import UserNotification from "../models/UserNotification";
-import GlobalNotification from "../models/GlobalNotification";
+import UserNotification from "../models/user_notification";
+import GlobalNotification from "../models/global_notification";
 import { typeRequestMw } from "../middleware/configResponse";
 import { globalNotificationSchema, userNotificationSchema } from "../schemas/notification";
 import User from "../models/user";

@@ -16,6 +16,7 @@ import orderRouter from './routes/orders';
 import notificationRouter from './routes/notification';
 import session from 'express-session';
 import { connectToGoogle } from './config/googleOAuth';
+import variationRouter from './routes/variation';
 
 const app = express();
 dotenv.config();
@@ -37,8 +38,7 @@ app.use(
    }),
 );
 
-connectToGoogle()
-
+connectToGoogle();
 
 app.use('/api', categoryRouter);
 app.use('/api', authRouter);
@@ -52,7 +52,7 @@ app.use('/api', menuRouter);
 app.use('/api', cartRouter);
 app.use('/api', orderRouter);
 app.use('/api', notificationRouter);
-
+app.use('/api', variationRouter);
 mongoose
    .connect(MONGO_URL)
    .then(() => console.log('connected to db'))

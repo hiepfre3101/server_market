@@ -89,6 +89,9 @@ export const getAllProduct = async (req, res, next) => {
                  path: 'brandId',
                  select: ['brandName', 'image'],
               },
+              {
+                 path: 'variations',
+              },
            ]
          : [];
    try {

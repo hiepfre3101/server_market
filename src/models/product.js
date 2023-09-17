@@ -19,7 +19,7 @@ const productSchema = new mongoose.Schema(
       subCateId: {
          type: mongoose.Types.ObjectId,
          require: true,
-         ref:"SubCategory"
+         ref: 'SubCategory',
       },
       brandId: {
          type: mongoose.Types.ObjectId,
@@ -35,12 +35,6 @@ const productSchema = new mongoose.Schema(
       desc: {
          type: String,
          required: true,
-      },
-      weight: {
-         type: Number,
-      },
-      volume: {
-         type: Number,
       },
       unit: {
          type: String,
@@ -59,6 +53,13 @@ const productSchema = new mongoose.Schema(
          required: true,
          default: [],
       },
+      variations: [
+         {
+            type: mongoose.Types.ObjectId,
+            ref: 'Variation',
+            default:[]
+         },
+      ],
    },
    { timestamps: true, versionKey: false },
 );
