@@ -20,6 +20,7 @@ export const validateUser = async (detail) => {
    const newUser = await User.create({
       email: detail.email,
       userName: detail.userName,
+      avatar: detail.picture,
       password: hashedPassword,
    });
 
@@ -64,7 +65,7 @@ export const signUp = async (req, res, next) => {
       });
 
       res.cookie('accessToken', accessToken, {
-         expires: new Date(Date.now() +5* 60 * 1000),
+         expires: new Date(Date.now() + 5 * 60 * 1000),
          httpOnly: true,
          secure: true,
       });
@@ -132,7 +133,7 @@ export const signIn = async (req, res, next) => {
          expiresIn: '5m',
       });
       res.cookie('accessToken', accessToken, {
-         expires: new Date(Date.now() + 5*60 * 1000),
+         expires: new Date(Date.now() + 5 * 60 * 1000),
          httpOnly: true,
          secure: true,
       });
@@ -146,6 +147,7 @@ export const signIn = async (req, res, next) => {
 
       req[RESPONSE_OBJ] = {
          accessToken,
+         expires: 10 * 60 * 1000,
          data: user,
       };
       return next();
@@ -169,53 +171,63 @@ export const redirect = (req, res) => {
    });
    // Successful authentication, redirect success.
    res.redirect('http://localhost:5173/');
-}
+};
 
-export const refresh = async (req, res) => {
+export const refresh = async (req, res, next) => {
    try {
       const refreshToken = req.cookies.refreshToken;
       if (!refreshToken) {
-         return res.json({
-            token: '',
-         });
+         req[RESPONSE_STATUS] = 404;
+         req[RESPONSE_MESSAGE] = `Form error: Unthorized`;
+         return next();
       }
-      jwt.verify(refreshToken, process.env.SERECT_REFRESHTOKEN_KEY, (err, decode) => {
+      jwt.verify(refreshToken, process.env.SERECT_REFRESHTOKEN_KEY, async (err, decode) => {
          if (err) {
-            return res.status(406).json({
-               err,
-               token: '',
-            });
+            req[RESPONSE_STATUS] = 400;
+            req[RESPONSE_MESSAGE] = `Form error: ${err}`;
+            return next();
          } else {
-            const accessToken = jwt.sign({ id: decode.id }, process.env.SERECT_ACCESSTOKEN_KEY, {
+            const user = await User.findById(decode._id);
+            if (!user) {
+               req[RESPONSE_STATUS] = 400;
+               req[RESPONSE_MESSAGE] = `Form error: not found account`;
+               return next();
+            }
+            const accessToken = jwt.sign({ _id: user._id }, process.env.SERECT_ACCESSTOKEN_KEY, {
                expiresIn: '1m',
             });
-            return res.status(200).json({
-               token: accessToken,
-               expires: 60 * 1000,
-            });
+            req[RESPONSE_OBJ] = {
+               accessToken,
+               expires: 10 * 60 * 1000,
+               data: user,
+            };
+            return next();
          }
       });
    } catch (error) {
-      return res.status(400).json({ message: error.message });
+      req[RESPONSE_STATUS] = 500;
+      req[RESPONSE_MESSAGE] = `Form error: ${error.message}`;
+      return next();
    }
 };
 
-export const clearToken = async (req, res) => {
+export const clearToken = async (req, res, next) => {
    try {
       const token = req.cookies.refreshToken;
       if (!token) {
-         return res.json({
-            message: 'no token available',
-         });
+         req[RESPONSE_STATUS] = 404;
+         req[RESPONSE_MESSAGE] = `Form error: No token available`;
+         return next();
       }
 
       res.clearCookie('refreshToken');
       res.clearCookie('accessToken');
 
-      return res.json({
-         message: 'token have been removed',
-      });
+      req[RESPONSE_MESSAGE] = `Token has been cleared`;
+      return next();
    } catch (error) {
-      return res.status(401).json({ message: error.message });
+      req[RESPONSE_STATUS] = 500;
+      req[RESPONSE_MESSAGE] = `Form error: ${error.message}`;
+      return next();
    }
 };
