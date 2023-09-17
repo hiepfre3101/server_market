@@ -65,7 +65,7 @@ export const signUp = async (req, res, next) => {
       });
 
       res.cookie('accessToken', accessToken, {
-         expires: new Date(Date.now() +5* 60 * 1000),
+         expires: new Date(Date.now() + 5 * 60 * 1000),
          httpOnly: true,
          secure: true,
       });
@@ -133,7 +133,7 @@ export const signIn = async (req, res, next) => {
          expiresIn: '5m',
       });
       res.cookie('accessToken', accessToken, {
-         expires: new Date(Date.now() + 5*60 * 1000),
+         expires: new Date(Date.now() + 5 * 60 * 1000),
          httpOnly: true,
          secure: true,
       });
@@ -211,7 +211,7 @@ export const refresh = async (req, res, next) => {
    }
 };
 
-export const clearToken = async (req, res) => {
+export const clearToken = async (req, res, next) => {
    try {
       const token = req.cookies.refreshToken;
       if (!token) {
