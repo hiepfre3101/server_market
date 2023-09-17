@@ -1,5 +1,6 @@
 import Product from '../models/product';
 import Category from '../models/categories';
+import SubCate from '../models/subCategories';
 import { productSchema } from '../schemas/product';
 import Brand from '../models/brand';
 import { typeRequestMw } from '../middleware/configResponse';
@@ -23,7 +24,6 @@ export const createProduct = async (req, res, next) => {
       await Brand.findByIdAndUpdate({ _id: req.body.categoryId }, { $addToSet: { products: product._id } });
       req[RESPONSE_OBJ] = product;
       return next();
-      
    } catch (error) {
       req[RESPONSE_STATUS] = 500;
       req[RESPONSE_MESSAGE] = `Error: ${error.message}`;
@@ -80,6 +80,10 @@ export const getAllProduct = async (req, res, next) => {
               {
                  path: 'categoryId',
                  select: ['cateName'],
+              },
+              {
+                 path: 'subCateId',
+                 select: ['subCateName'],
               },
               {
                  path: 'brandId',
@@ -153,6 +157,13 @@ export const updateProduct = async (req, _, next) => {
          );
       }
       if (existProduct.subCateId != req.body.subCateId) {
+         await SubCate.findByIdAndUpdate(
+            req.body.subCateId,
+            {
+               $addToSet: { products: existProduct._id },
+            },
+            { new: true },
+         );
       }
       if (existProduct.brandId != req.body.brandId) {
          await Brand.findByIdAndUpdate(existProduct.brandId, { $pull: { products: existProduct._id } });
