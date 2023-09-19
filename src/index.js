@@ -16,6 +16,7 @@ import orderRouter from './routes/orders';
 import notificationRouter from './routes/notification';
 import session from 'express-session';
 import { connectToGoogle } from './config/googleOAuth';
+import { connectToFacebook } from './config/facebookOAuth';
 
 const app = express();
 dotenv.config();
@@ -38,7 +39,7 @@ app.use(
 );
 
 connectToGoogle()
-
+connectToFacebook()
 
 app.use('/api', categoryRouter);
 app.use('/api', authRouter);
