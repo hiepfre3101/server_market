@@ -1,19 +1,20 @@
 import passport from 'passport';
-import { OAuth2Strategy } from 'passport-google-oauth';
+import FacebookStrategy from 'passport-facebook';
 import dotenv from 'dotenv';
 import User from '../models/user';
 import { validateUser } from '../controller/auth';
 import jwt from 'jsonwebtoken';
 dotenv.config();
 
-export const connectToGoogle = () => {
-   const GoogleStrategy = OAuth2Strategy;
+export const connectToFacebook = () => {
    passport.use(
-      new GoogleStrategy(
+      new FacebookStrategy(
          {
-            clientID: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            callbackURL: 'http://localhost:8000/api/auth/google/redirect',
+            clientID: process.env.FACEBOOK_ID,
+            clientSecret: process.env.FACEBOOK_SECRET,
+            callbackURL: 'http://localhost:8000/api/auth/facebook/redirect',
+            enableProof: true,
+            profileFields: ['id', 'displayName', 'photos', 'emails'],
          },
          async function (accessToken, refreshToken, profile, done) {
             try {
@@ -38,6 +39,7 @@ export const connectToGoogle = () => {
                   refreshToken,
                   data: user,
                });
+               return done(null, profile);
             } catch (error) {
                console.log(error.message);
             }
