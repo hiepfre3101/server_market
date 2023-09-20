@@ -1,6 +1,7 @@
 import { typeRequestMw } from '../middleware/configResponse';
 import User from '../models/user';
 import { userSchema } from '../schemas/auth';
+import bcrypt from 'bcrypt';
 
 const { RESPONSE_MESSAGE, RESPONSE_STATUS, RESPONSE_OBJ } = typeRequestMw;
 
@@ -65,8 +66,11 @@ export const createUser = async (req, res, next) => {
          req[RESPONSE_MESSAGE] = `Form error: ${error.details[0].message}`;
          return next();
       }
-
-      const user = await User.create(req.body);
+      const hashPassword = await bcrypt.hash(req.body.password, 10);
+      const user = await User.create({
+         ...req.body,
+         password: hashPassword
+      });
       if (!user) {
          req[RESPONSE_STATUS] = 500;
          req[RESPONSE_MESSAGE] = `Form error: create user failed`;
@@ -102,24 +106,6 @@ export const updateUser = async (req, res, next) => {
 
       req[RESPONSE_OBJ] = newUser;
       next();
-   } catch (error) {
-      req[RESPONSE_STATUS] = 500;
-      req[RESPONSE_MESSAGE] = `Form error: ${error.message}`;
-      return next();
-   }
-};
-export const removeUser = async (req, res, next) => {
-   try {
-      const { id } = req.params;
-      const removedUser = await Product.findByIdAndDelete(id);
-      if (!removedUser) {
-         req[RESPONSE_STATUS] = 400;
-         req[RESPONSE_MESSAGE] = `Not found user`;
-         return next();
-      }
-
-      req[RESPONSE_OBJ] = removedUser;
-      return next();
    } catch (error) {
       req[RESPONSE_STATUS] = 500;
       req[RESPONSE_MESSAGE] = `Form error: ${error.message}`;
