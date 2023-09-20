@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import categoryRouter from './routes/categories';
 import authRouter from './routes/auth';
+import userRouter from './routes/user';
 import cookieParser from 'cookie-parser';
 import productRouter from './routes/product';
 import brandRoute from './routes/brand';
@@ -17,6 +18,7 @@ import notificationRouter from './routes/notification';
 import session from 'express-session';
 import { connectToGoogle } from './config/googleOAuth';
 import variationRouter from './routes/variation';
+import { connectToFacebook } from './config/facebookOAuth';
 
 const app = express();
 dotenv.config();
@@ -38,10 +40,12 @@ app.use(
    }),
 );
 
-connectToGoogle();
+connectToGoogle()
+connectToFacebook()
 
 app.use('/api', categoryRouter);
 app.use('/api', authRouter);
+app.use('/api', userRouter);
 app.use('/api', categoryRouter);
 app.use('/api', productRouter);
 app.use('/api', brandRoute);

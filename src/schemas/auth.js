@@ -5,15 +5,6 @@ export const singupSchema = joi.object({
    email: joi.string().email().required(),
    password: joi.string().required().min(6),
    confirmPassword: joi.string().valid(joi.ref('password')).required(),
-   phoneNumber: joi.string().min(10),
-   address: joi.string(),
-   avatar: joi
-      .string()
-      .default(
-         'https://lh5.googleusercontent.com/x14nnYSvR1c8KkO6Kj1giR4iZcQL0UelyqcGBRFt8fHQg8sRUouMkFc3b_F-kmDLDW-qpDo8KkBpuXGnfUNjy6NZVqwAcBYnngbupNd2scJqGyNpjYTGQZdfY3ktqFJZNsKfXR-YrDmqrcQwOrM4k2M',
-      ),
-   role: joi.string().valid('admin', 'member').default('member'),
-   state: joi.boolean().default(true),
 });
 
 export const signinSchema = joi.object({
@@ -28,11 +19,10 @@ export const userSchema = joi.object({
    phoneNumber: joi.string().min(10),
    address: joi.string(),
    avatar: joi
-   .string()
-   .default(
-      'https://lh5.googleusercontent.com/x14nnYSvR1c8KkO6Kj1giR4iZcQL0UelyqcGBRFt8fHQg8sRUouMkFc3b_F-kmDLDW-qpDo8KkBpuXGnfUNjy6NZVqwAcBYnngbupNd2scJqGyNpjYTGQZdfY3ktqFJZNsKfXR-YrDmqrcQwOrM4k2M',
-   ),
+      .string()
+      .default(
+         'https://lh5.googleusercontent.com/x14nnYSvR1c8KkO6Kj1giR4iZcQL0UelyqcGBRFt8fHQg8sRUouMkFc3b_F-kmDLDW-qpDo8KkBpuXGnfUNjy6NZVqwAcBYnngbupNd2scJqGyNpjYTGQZdfY3ktqFJZNsKfXR-YrDmqrcQwOrM4k2M',
+      ),
    role: joi.string().valid('admin', 'member').default('member'),
    state: joi.boolean().default(true),
-  
 });
