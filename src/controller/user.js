@@ -15,12 +15,14 @@ export const getAllUsers = async (req, res, next) => {
          },
          collation: { locale: 'vi', strength: 1 },
       };
-
+      
       if (_limit !== undefined) {
          options.limit = _limit;
       }
-      const optionsSearch = _q !== '' ? { $text: { $search: _q } } : {};
-
+      const optionsSearch = _q !== '' ? { $or: [
+         { userName: { $regex: _q, $options: 'i' } },
+     ] } : {};
+      
       const users = await User.paginate({ ...optionsSearch }, { ...options });
 
       if (users.docs.length === 0) {
